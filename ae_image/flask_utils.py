@@ -5,15 +5,21 @@ and update an ImageCollection.
 
 """
 
+from flask import current_app as app, request
+from google.appengine.ext.blobstore import BlobInfo
+from werkzeug.http import parse_options_header
 
-_ALLOWED_TYPES = ['gif', 'jpeg', 'png']
 
-
-def append_from_request(collection, field_name, allowed_types=None):
+def append_from_request(collection, field_name):
     """
-    Appends a new image to the collection from the current Flask request.
+    Appends new image(s) to the collection from the current Flask request.
+    Returns the count of number of blobs that were added to the collection.
 
     """
 
-    if not allowed_types:
-        allowed_types = _ALLOWED_TYPES
+    blob_keys = []
+    for file_info in request.files.getlist(field_name):
+        file_header = parse_options_header(file_info.headers['Content-Type'])
+        blob_keys.append(file_header[1]['blob-key'])
+    map(collection.append_from_blob_info,  BlobInfo.get(blob_keys))
+    return len(blob_keys)

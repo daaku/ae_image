@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset=utf-8>
+    <title>ae_image example</title>
+    <link rel=stylesheet type=text/css
+          href="http://fonts.googleapis.com/css?family=Ubuntu">
+    <style>
+      body {
+        font-family: Ubuntu, "Lucida Grande", arial, serif;
+        font-size: 14px;
+      }
+      #bd {
+        width: 600px;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id=bd>
+      <h1>ae_image example</h1>
+      <form method=post enctype=multipart/form-data
+            action="{{ upload_url }}">
+        <p>
+          Select some images:
+          <input type=file name=images multiple>
+          <input type=submit value=Upload>
+        </p>
+      </form>
+    </div>
+  </body>
+</html>
