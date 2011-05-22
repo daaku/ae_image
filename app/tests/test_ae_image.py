@@ -132,7 +132,7 @@ class ImageTestCase(BaseTestCase):
         pass
 
 
-class ImageCollectionTestCase(BaseTestCase):
+class CollectionTestCase(BaseTestCase):
     def test_empty_image_collection(self):
         collection = ae_image.core.Collection([])
         self.assertEqual(len(collection.images), 0, 'Expect no images.')
@@ -195,6 +195,6 @@ class ImageCollectionTestCase(BaseTestCase):
             collection.generate_urls(), 'Expect to generate something.')
 
 
-class ImageCollectionPropertyTestCase(BaseTestCase):
+class CollectionPropertyTestCase(BaseTestCase):
     def test_default_property_value(self):
         self.assertTrue(True)
