@@ -5,7 +5,7 @@ and update an ImageCollection.
 
 """
 
-from flask import current_app as app, request
+from flask import request
 from google.appengine.ext.blobstore import BlobInfo
 from werkzeug.http import parse_options_header
 

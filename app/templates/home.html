@@ -22,11 +22,27 @@
       <form method=post enctype=multipart/form-data
             action="{{ upload_url }}">
         <p>
+          Collection Name:
+          <input name=name value=main>
+          <br>
+
           Select some images:
           <input type=file name=images multiple>
           <input type=submit value=Upload>
         </p>
       </form>
+
+      {% if collections %}
+        <h2>Collections</h2>
+        {% for collection in collections %}
+          <h3>{{ collection.name }}</h3>
+          {% for key, url in collection.images.get_urls('thumb') %}
+            <a href="{{ collection.images.get_url('original', key) }}">
+              <img src="{{ url }}">
+            </a>
+          {% endfor %}
+        {% endfor %}
+      {% endif %}
     </div>
   </body>
 </html>

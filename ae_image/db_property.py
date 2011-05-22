@@ -18,20 +18,29 @@ class Property(db.Property):
 
     data_type = Collection
 
+    def __init__(self, styles, **kwargs):
+        super(Property, self).__init__(**kwargs)
+        self.styles = styles
+
+    def default_value(self):
+        return Collection(self.styles)
+
+    def empty(self, value):
+        return not value.images
+
     def validate(self, value):
         if value is not None and not isinstance(value, Collection):
-            raise db.BadValueError('Property %s must be a Collection.'
-                    % self.name)
+            raise db.BadValueError(
+                'Property %s must be a Collection.' % self.name)
         return super(Property, self).validate(value)
 
     def get_value_for_datastore(self, model_instance):
-        result = super(Property, self).get_value_for_datastore(
-                model_instance)
-        assert isinstance(result, Collection)
+        result = super(Property, self).get_value_for_datastore(model_instance)
         result = pickle.dumps(result)
         return db.Blob(result)
 
     def make_value_from_datastore(self, value):
         value = pickle.loads(str(value))
-        assert isinstance(value, Collection)
+        if not value:
+            value = self.default_value()
         return super(Property, self).make_value_from_datastore(value)

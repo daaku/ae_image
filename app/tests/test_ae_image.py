@@ -73,8 +73,16 @@ class StyleTestCase(BaseTestCase):
 
 
 class ImageTestCase(BaseTestCase):
-    def test_empty_image_has_original_url(self):
+    def test_empty_image_has_no_url(self):
         image = ae_image.core.Image('abc', 'jpeg')
+        self.assertEqual(len(image.blobs), 0,
+            'Expect no blobs on a new image.')
+        self.assertRaises(ae_image.core.UrlNotFound, image.get_url,
+            ae_image.core.Style('original'))
+
+    def test_image_with_original_url(self):
+        image = ae_image.core.Image('abc', 'jpeg')
+        image.generate_url(ae_image.core.Style('original'))
         self.assertEqual(len(image.blobs), 1,
             'Expect one blob on a new image.')
         self.assertTrue(
@@ -93,6 +101,7 @@ class ImageTestCase(BaseTestCase):
     def test_image_with_existing_blobs(self):
         image1 = ae_image.core.Image('abc', 'jpeg')
         image1.generate_url(ae_image.core.Style('another', format='gif'))
+        image1.generate_url(ae_image.core.Style('more', format='jpeg'))
 
         image2 = ae_image.core.Image('abc', 'jpeg', image1.blobs)
         self.assertEqual(len(image2.blobs), 2, 'Expect 2 blobs on image.')
@@ -102,7 +111,7 @@ class ImageTestCase(BaseTestCase):
         self.assertRaises(ae_image.core.UrlNotFound, image.get_url,
             ae_image.core.Style('another', format='gif'))
         image.generate_url(ae_image.core.Style('another', format='gif'))
-        self.assertEqual(len(image.blobs), 2, 'Expect 2 blobs on image.')
+        self.assertEqual(len(image.blobs), 1, 'Expect 1 blob on image.')
         self.assertTrue(
             image.get_url(ae_image.core.Style('another', format='gif')),
             'Expect a URL for newly generated style.')
@@ -143,7 +152,7 @@ class CollectionTestCase(BaseTestCase):
             [ae_image.core.Style('big', 500)])
         collection.append(blob_key, 'jpeg')
         try:
-            collection.get_url(blob_key, 'small')
+            collection.get_url('small', blob_key)
             self.fail('Was expecting UnknownStyle exception.')
         except ae_image.core.UnknownStyle, ex:
             self.assertEqual(repr(ex), u'Unknown style "small" requested.',
@@ -154,7 +163,7 @@ class CollectionTestCase(BaseTestCase):
             [ae_image.core.Style('big', 500)])
         collection.append('abc', 'jpeg')
         try:
-            collection.get_url('def', 'big')
+            collection.get_url('big', 'def')
             self.fail('Was expecting UnknownImage exception.')
         except ae_image.core.UnknownImage, ex:
             self.assertEqual(repr(ex),
@@ -167,7 +176,7 @@ class CollectionTestCase(BaseTestCase):
             [ae_image.core.Style('big', 500)])
         collection.append(blob_key, 'jpeg')
         self.assertTrue(
-            collection.get_url(blob_key, 'big'), 'Expect URL back.')
+            collection.get_url('big', blob_key), 'Expect URL back.')
 
     def test_get_valid_ordered_urls_for_all_images(self):
         blob_key0 = 'abc'
@@ -178,9 +187,9 @@ class CollectionTestCase(BaseTestCase):
         collection.append(blob_key1, 'jpeg')
         urls = list(collection.get_urls('big'))
         self.assertEqual(len(urls), 2, 'Expect 2 URLs back.')
-        self.assertEqual(urls[0], collection.get_url(blob_key0, 'big'),
+        self.assertEqual(urls[0][1], collection.get_url('big', blob_key0),
             'Expect URL for blob key 0.')
-        self.assertEqual(urls[1], collection.get_url(blob_key1, 'big'),
+        self.assertEqual(urls[1][1], collection.get_url('big', blob_key1),
             'Expect URL for blob key 1.')
 
     def test_generate_urls_for_new_style(self):

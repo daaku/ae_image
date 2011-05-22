@@ -10,7 +10,10 @@ the ``Collection`` class defined here.
 
 from google.appengine.api.images import get_serving_url
 from ordereddict import OrderedDict
+from os import environ
 import google.appengine.ext.blobstore as blobstore
+
+_is_dev_environment = environ.get('SERVER_SOFTWARE', '').startswith('Dev')
 
 
 class UrlNotFound(Exception):
@@ -140,12 +143,8 @@ class Image(object):
     def __init__(self, blob_key, content_type, blobs=None):
         self.blob_key = str(blob_key)
         self.content_type = content_type
-        if blobs:
-            self.blobs = blobs
-        else:
-            self.blobs = {}
-            self.generate_url(Style('original'))
-            #TODO automatically do lossless conversions like bmp/tiff to png
+        self.blobs = blobs or {}
+        #TODO automatically do lossless conversions like bmp/tiff to png
 
     def __repr__(self):
         return '<Image "%s" with blobs %r>' % (self.blob_key, self.blobs)
@@ -173,6 +172,12 @@ class Image(object):
         if style not in self.blobs:
             #TODO handle format conversion
             serving_url = get_serving_url(self.blob_key)
+
+            # in the development environment it is not desirable to have the
+            # address/port in the serving url
+            if _is_dev_environment:
+                serving_url = serving_url[serving_url.find('/', 9):]
+
             self.blobs[style] = \
                 Blob(self.blob_key, self.content_type, serving_url)
             return True
@@ -200,13 +205,15 @@ class Collection(object):
 
     def __init__(self, styles, images=None):
         self.styles = dict([(s.name, s) for s in styles])
+        if 'originl' not in self.styles:
+            self.styles['original'] = Style('original')
         self.images = images or OrderedDict()
 
     def __repr__(self):
         return 'Collection:\nstyles: %r\nimages: %r' % \
             (self.styles, self.images)
 
-    def get_url(self, blob_key, style_name):
+    def get_url(self, style_name, blob_key):
         """Get the serving URL for the given blob_key in the named style."""
 
         blob_key = str(blob_key)
@@ -231,7 +238,7 @@ class Collection(object):
         """
 
         for image in self.images.values():
-            yield image.get_url(self.styles[style_name])
+            yield image.blob_key, image.get_url(self.styles[style_name])
 
     def generate_urls(self):
         """
