@@ -14,10 +14,12 @@ run_test() {
 run_lint() {
   pep8 \
     ae_image \
+    app/index.py \
     app/tests/*.py
 
   pylint --rcfile=.pylintrc \
     ae_image \
+    app/index.py \
     app/tests/*.py
 }
 

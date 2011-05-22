@@ -8,5 +8,5 @@ handlers:
 - url: /test.*
   script: gaeunit.py
 
-- url: /
+- url: /.*
   script: index.py

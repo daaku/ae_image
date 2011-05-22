@@ -19,3 +19,6 @@
 [submodule "subs/gaeunit"]
 	path = subs/gaeunit
 	url = https://github.com/nshah/gaeunit
+[submodule "subs/werkzeug-debugger-appengine"]
+	path = subs/werkzeug-debugger-appengine
+	url = https://github.com/nshah/werkzeug-debugger-appengine
