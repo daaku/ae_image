@@ -72,9 +72,32 @@ class Style(object):
     def __init__(self, name, size=None, crop=None, format=None, quality=None):
         self.name = name
         self.size = size
+
+        if crop and not size:
+            raise ValueError('"cropy" requires "size" to be specified.')
         self.crop = crop
+
+        if quality and not format:
+            format = 'jpeg'
         self.format = format
+
+        if quality and format != 'jpeg':
+            raise ValueError(
+                '"quality" can only be specified with format=jpeg')
         self.quality = quality
+
+    def __repr__(self):
+        ret = u'<Style "%s"' % self.name
+        if self.format:
+            ret += u' format=%s' % self.format
+        if self.quality:
+            ret += u' quality=%d' % self.quality
+        if self.size:
+            ret += u' size=%d' % self.size
+        if self.crop:
+            ret += u' (cropped)'
+        ret += '>'
+        return ret
 
     def serving_key(self):
         """
@@ -103,6 +126,10 @@ class Blob(object):
         self.content_type = content_type
         self.serving_url = serving_url
 
+    def __repr__(self):
+        return u'<Blob "%s": %s, Serving URL: %s>' % \
+            (self.blob_key, self.content_type, self.serving_url)
+
 
 class Image(object):
     """
@@ -119,6 +146,9 @@ class Image(object):
             self.blobs = {}
             self.generate_url(Style('original'))
             #TODO automatically do lossless conversions like bmp/tiff to png
+
+    def __repr__(self):
+        return '<Image "%s" with blobs %r>' % (self.blob_key, self.blobs)
 
     def get_url(self, style):
         """Get a URL for this image based on the given style."""
@@ -171,6 +201,10 @@ class Collection(object):
     def __init__(self, styles, images=None):
         self.styles = dict([(s.name, s) for s in styles])
         self.images = images or OrderedDict()
+
+    def __repr__(self):
+        return 'Collection:\nstyles: %r\nimages: %r' % \
+            (self.styles, self.images)
 
     def get_url(self, blob_key, style_name):
         """Get the serving URL for the given blob_key in the named style."""
