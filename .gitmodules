@@ -1,0 +1,21 @@
+[submodule "subs/flask"]
+	path = subs/flask
+	url = https://github.com/mitsuhiko/flask
+[submodule "subs/jinja2"]
+	path = subs/jinja2
+	url = https://github.com/mitsuhiko/jinja2
+[submodule "subs/werkzeug"]
+	path = subs/werkzeug
+	url = https://github.com/mitsuhiko/werkzeug
+[submodule "subs/twill"]
+	path = subs/twill
+	url = https://github.com/ctb/twill
+[submodule "subs/flask-testing"]
+	path = subs/flask-testing
+	url = https://github.com/danjac/Flask-Testing
+[submodule "subs/ordereddict"]
+	path = subs/ordereddict
+	url = https://github.com/clones/python-ordereddict
+[submodule "subs/gaeunit"]
+	path = subs/gaeunit
+	url = https://github.com/nshah/gaeunit

@@ -1,0 +1,60 @@
+#!/bin/sh
+
+BASE_DIR=$(cd `dirname $0` && pwd)
+export PYTHONPATH=$PYTHONPATH:$BASE_DIR/app/lib
+
+run_server() {
+  dev_appserver.py --address=0.0.0.0 --port=7654 app
+}
+
+run_test() {
+  curl 'http://127.0.0.1:7654/test?format=plain'
+}
+
+run_lint() {
+  pep8 \
+    ae_image \
+    app/tests/*.py
+
+  pylint --rcfile=.pylintrc \
+    ae_image \
+    app/tests/*.py
+}
+
+run_cover() {
+  PORT=42000
+  coverage run --source=ae_image `which dev_appserver.py` --port=$PORT app \
+    &> /dev/null &
+  PID=$!
+  while ! nc -vz 127.0.0.1 $PORT &> /dev/null; do sleep 0.2; done
+  curl 'http://127.0.0.1:42000/test?format=plain'
+  kill $PID
+  wait $PID
+  coverage report --show-missing
+}
+
+run_exec() {
+  $@
+}
+
+help() {
+  cat <<DOC
+Usage: $0 [command]
+
+server  -- start appengine dev server
+test    -- run the tests (requires server to be running)
+cover   -- run the tests with coverage support
+lint    -- lint the code
+exec    -- execute arbitary command with the PYTHONPATH setup
+DOC
+}
+
+# run something
+if [ $# -eq 0 ]; then
+  help
+  exit 1
+else
+  cmd=$1
+  shift
+  run_$cmd $@
+fi
