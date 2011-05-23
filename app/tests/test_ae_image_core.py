@@ -1,33 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Unit tests for ae_image.
+Unit tests for ae_image.core.
 
 """
 # pylint: disable=C0111
 
-from __future__ import with_statement
-from flask import Flask
-from flaskext.testing import TestCase
-from google.appengine.api import files
+from ae_image_test import BaseTestCase
 from google.appengine.ext.blobstore import BlobInfo
 import ae_image.core
-
-
-class BaseTestCase(TestCase):
-    def create_app(self):
-        app = Flask(__name__)
-        app.config['TESTING'] = True
-        return app
-
-    @staticmethod
-    def make_blob(content_type, data):
-        """Writes a blob and returns the blob_key of the created blob."""
-
-        file_name = files.blobstore.create(mime_type=content_type)
-        with files.open(file_name, 'a') as blob_file:
-            blob_file.write(data)
-        files.finalize(file_name)
-        return files.blobstore.get_blob_key(file_name)
 
 
 class StyleTestCase(BaseTestCase):
@@ -202,8 +182,3 @@ class CollectionTestCase(BaseTestCase):
         collection.styles['low'] = ae_image.core.Style('low', format='jpeg')
         self.assertTrue(
             collection.generate_urls(), 'Expect to generate something.')
-
-
-class CollectionPropertyTestCase(BaseTestCase):
-    def test_default_property_value(self):
-        self.assertTrue(True)
