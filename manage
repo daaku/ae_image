@@ -35,6 +35,10 @@ run_cover() {
   coverage report --show-missing
 }
 
+run_deploy() {
+  appcfg.py update app
+}
+
 run_exec() {
   $@
 }
