@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset=utf-8>
+    <title>{% block title %}{% endblock %} &mdash; ae_image</title>
+    <style>
+      body {
+        font-family: "Lucida Grande", arial, serif;
+        font-size: 14px;
+      }
+      #bd {
+        width: 600px;
+        margin: 0 auto;
+      }
+      img {
+        max-width: 600px;
+      }
+      #home {
+        float: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div id=bd>
+      <a id="home" href="{{ url_for('home') }}">Home</a>
+      <h1>{{ self.title() }}</h1>
+      {% block body %}{% endblock %}
+    </div>
+  </body>
+</html>

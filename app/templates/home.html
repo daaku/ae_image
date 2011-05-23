@@ -1,48 +1,36 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset=utf-8>
-    <title>ae_image example</title>
-    <link rel=stylesheet type=text/css
-          href="http://fonts.googleapis.com/css?family=Ubuntu">
-    <style>
-      body {
-        font-family: Ubuntu, "Lucida Grande", arial, serif;
-        font-size: 14px;
-      }
-      #bd {
-        width: 600px;
-        margin: 0 auto;
-      }
-    </style>
-  </head>
-  <body>
-    <div id=bd>
-      <h1>ae_image example</h1>
-      <form method=post enctype=multipart/form-data
-            action="{{ upload_url }}">
-        <p>
-          Collection Name:
-          <input name=name value=main>
-          <br>
+{% extends "base.html" %}
 
-          Select some images:
-          <input type=file name=images multiple>
-          <input type=submit value=Upload>
-        </p>
-      </form>
+{% block title %}ae_image example app{% endblock %}
+{% block body %}
+  <p>
+  ae_image is a library to make it easier to handle images associated with a
+  db.Model using blobstore and the AppEngine image serving infrastructure.
+  </p>
 
-      {% if collections %}
-        <h2>Collections</h2>
-        {% for collection in collections %}
-          <h3>{{ collection.name }}</h3>
-          {% for key, url in collection.images.get_urls('thumb') %}
-            <a href="{{ collection.images.get_url('original', key) }}">
-              <img src="{{ url }}">
-            </a>
-          {% endfor %}
-        {% endfor %}
-      {% endif %}
-    </div>
-  </body>
-</html>
+  <form method=post enctype=multipart/form-data style="padding: 1em"
+        action="{{ upload_url }}">
+    <p>
+      <label for=name>Collection Name:</label>
+      <input id=name name=name value=main>
+      <br>
+
+      <label for=images>Select some images:</label>
+      <input id=images type=file name=images multiple>
+      <br>
+
+      <input type=submit value=Upload>
+    </p>
+  </form>
+
+  {% if collections %}
+    <h2>Collections</h2>
+    {% for collection in collections %}
+      <h3>{{ collection.name }}</h3>
+      {% for key, url in collection.images.get_urls('thumb') %}
+        <a href="{{ url_for('image', name=collection.name, key=key) }}">
+          <img src="{{ url }}">
+        </a>
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
+{% endblock %}

@@ -19,6 +19,7 @@ app = Flask(__name__)
 
 class NamedCollections(db.Model):
     """A simple named collection model to demonstrate the use of ae_image."""
+
     name = db.StringProperty()
     images = ae_image.Property([
         ae_image.Style('thumb', size=50, quality=75),
@@ -27,12 +28,14 @@ class NamedCollections(db.Model):
     @classmethod
     def get_named(cls, name):
         """Get or insert a named collection."""
+
         return cls.get_or_insert(name, name=name)
 
 
 @app.route('/')
 def home():
     """The main landing page."""
+
     return render_template('home.html',
         upload_url=blobstore.create_upload_url(url_for('upload')),
         collections=list(NamedCollections.all()))
@@ -41,12 +44,21 @@ def home():
 @app.route('/upload', methods=['POST'])
 def upload():
     """Handles blobstore uploads and adds images to a named collection."""
+
     collection = NamedCollections.get_named(request.form['name'])
     append_from_request(collection.images, 'images')
     collection.save()
     response = redirect(url_for('home'))
     response.data = ''
     return response
+
+
+@app.route('/collection/<name>/<key>')
+def image(name, key):
+    """Shows an image from a collection."""
+
+    return render_template('image.html', key=key,
+        collection=NamedCollections.get_named(name))
 
 
 if __name__ == '__main__':

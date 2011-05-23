@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}{{ collection.name }}{% endblock %}
+{% block body %}
+  <h3>Key: {{ key }}</h3>
+  <h2>Original Image</h2>
+  {% set url = collection.images.get_url('original', key) %}
+  <a href="{{ url }}"><img src="{{ url }}"></a>
+{% endblock %}
