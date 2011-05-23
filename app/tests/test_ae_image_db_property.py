@@ -81,3 +81,7 @@ class CollectionPropertyTestCase(BaseTestCase):
         album.save()
         self.assertTrue(
             album.images.get_url('thumb', blob_key), 'Expect URL back.')
+
+    def test_property_must_be_collection(self):
+        album = TestAlbum()
+        self.assertRaises(db.BadValueError, setattr, album, 'images', 'abc')

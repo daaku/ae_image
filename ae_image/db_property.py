@@ -26,7 +26,7 @@ class Property(db.Property):
         return Collection(self.styles)
 
     def empty(self, value):
-        return not value.images
+        return not value or not value.images
 
     def validate(self, value):
         if value is not None and not isinstance(value, Collection):
