@@ -5,16 +5,37 @@ Example application for ae_image.
 """
 
 import sys
-from os import path, environ
-sys.path[1:1] = [path.abspath(path.dirname(__file__) + '/lib')]
+import os
+sys.path[1:1] = [os.path.abspath(os.path.dirname(__file__) + '/lib')]
 
 from ae_image.flask_utils import append_from_request
 from flask import Flask, render_template, request, url_for, redirect
 from google.appengine.ext import db, blobstore
+from werkzeug.urls import url_decode
 from wsgiref.handlers import CGIHandler
 import ae_image
 
 app = Flask(__name__)
+
+
+class MethodRewriteMiddleware(object):
+    """
+    Adds support for HTTP method overriding using the _method query parameter.
+    Note, it **must** be in the query, post data is not looked at.
+
+    """
+
+    def __init__(self, application):
+        self.app = application
+
+    def __call__(self, environ, start_response):
+        if '_method' in environ.get('QUERY_STRING', ''):
+            args = url_decode(environ['QUERY_STRING'])
+            method = args.get('_method')
+            if method:
+                method = method.encode('ascii', 'replace')
+                environ['REQUEST_METHOD'] = method
+        return self.app(environ, start_response)
 
 
 class NamedCollections(db.Model):
@@ -61,9 +82,20 @@ def image(name, key):
         collection=NamedCollections.get_named(name))
 
 
+@app.route('/collection/<name>/<key>', methods=['DELETE'])
+def remove_image(name, key):
+    """Removes a single image from a collection."""
+
+    collection = NamedCollections.get_named(name)
+    collection.images.remove(key)
+    collection.save()
+    return redirect(url_for('home'))
+
+
 if __name__ == '__main__':
-    if environ.get('SERVER_SOFTWARE', '').startswith('Dev'):
+    if os.environ.get('SERVER_SOFTWARE', '').startswith('Dev'):
         import werkzeug_debugger_appengine
         app.debug = True
         app = werkzeug_debugger_appengine.get_debugged_app(app)
+    app = MethodRewriteMiddleware(app)
     CGIHandler().run(app)
