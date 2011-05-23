@@ -77,7 +77,7 @@ class Style(object):
         self.size = size
 
         if crop and not size:
-            raise ValueError('"cropy" requires "size" to be specified.')
+            raise ValueError('"crop" requires "size" to be specified.')
         self.crop = crop
 
         if quality and not format:

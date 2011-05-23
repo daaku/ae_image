@@ -51,6 +51,28 @@ class StyleTestCase(BaseTestCase):
         self.assertNotEqual(hash(style1), hash(style2),
             'Hash for styles with different quality must not be the same.')
 
+    def test_crop_requires_size(self):
+        self.assertRaises(ValueError, ae_image.core.Style, 'style1', crop=True)
+
+    def test_quality_requires_jpeg(self):
+        self.assertRaises(ValueError, ae_image.core.Style, 'style1',
+            format='gif', quality=10)
+
+    def test_repr_has_something(self):
+        self.assertEqual(
+            '<Style "style1" format=jpeg quality=10 size=10 (cropped)>',
+            repr(ae_image.core.Style('style1', size=10, crop=True,
+                    format='jpeg', quality=10)),
+            'Expect repr back.')
+
+
+class BlobTestCase(BaseTestCase):
+    def test_repr_has_something(self):
+        self.assertEqual(
+            '<Blob "key": jpeg, Serving URL: url>',
+            repr(ae_image.core.Blob('key', 'jpeg', 'url')),
+            'Expect repr back.')
+
 
 class ImageTestCase(BaseTestCase):
     def test_empty_image_has_no_url(self):
@@ -120,6 +142,12 @@ class ImageTestCase(BaseTestCase):
     def test_remove_image_with_multiple_blobs(self):
         pass
 
+    def test_repr_has_something(self):
+        self.assertEqual(
+            '<Image "key" with blobs {}>',
+            repr(ae_image.core.Image('key', 'jpeg')),
+            'Expect repr back.')
+
 
 class CollectionTestCase(BaseTestCase):
     def test_empty_image_collection(self):
@@ -158,6 +186,14 @@ class CollectionTestCase(BaseTestCase):
         self.assertTrue(
             collection.get_url('big', blob_key), 'Expect URL back.')
 
+    def test_append_from_blob_info(self):
+        blob_key = self.make_blob('image/jpeg', 'dummy')
+        collection = ae_image.core.Collection(
+            [ae_image.core.Style('big', 500)])
+        collection.append_from_blob_info(BlobInfo.get(blob_key))
+        self.assertTrue(
+            collection.get_url('big', blob_key), 'Expect URL back.')
+
     def test_get_valid_ordered_urls_for_all_images(self):
         blob_key0 = 'abc'
         blob_key1 = 'def'
@@ -182,3 +218,28 @@ class CollectionTestCase(BaseTestCase):
         collection.styles['low'] = ae_image.core.Style('low', format='jpeg')
         self.assertTrue(
             collection.generate_urls(), 'Expect to generate something.')
+
+    def test_remove_with_single_image(self):
+        blob_key = self.make_blob('image/jpeg', 'dummy')
+        self.assertTrue(BlobInfo.get(blob_key),
+            'Should be able to load BlobInfo for key.')
+        collection = ae_image.core.Collection(
+            [ae_image.core.Style('big', 500)])
+        collection.append_from_blob_info(BlobInfo.get(blob_key))
+        self.assertTrue(
+            collection.get_url('big', blob_key), 'Expect URL back.')
+        collection.remove(blob_key)
+        self.assertFalse(BlobInfo.get(blob_key),
+            'Should no longer be able to load BlobInfo for key.')
+        self.assertRaises(ae_image.core.UnknownImage, collection.get_url,
+            'big', blob_key)
+        self.assertRaises(ae_image.core.UnknownImage, collection.remove,
+            blob_key)
+
+    def test_repr_has_something(self):
+        expected = '''Collection:
+styles: {'original': <Style "original">, 'another': <Style "another">}
+images: OrderedDict()'''
+        self.assertEqual(expected,
+            repr(ae_image.core.Collection([ae_image.core.Style('another')])),
+            'Expect repr back.')
