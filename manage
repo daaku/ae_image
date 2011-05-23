@@ -51,6 +51,7 @@ server  -- start appengine dev server
 test    -- run the tests (requires server to be running)
 cover   -- run the tests with coverage support
 lint    -- lint the code
+deploy  -- deploy sample application to appengine
 exec    -- execute arbitary command with the PYTHONPATH setup
 DOC
 }
