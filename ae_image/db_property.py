@@ -43,4 +43,5 @@ class Property(db.Property):
         value = pickle.loads(str(value))
         if not value:
             value = self.default_value()
+        value.styles = self.styles
         return super(Property, self).make_value_from_datastore(value)

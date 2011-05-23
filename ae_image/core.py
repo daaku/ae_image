@@ -204,14 +204,26 @@ class Collection(object):
     """
 
     def __init__(self, styles, images=None):
-        self.styles = dict([(s.name, s) for s in styles])
-        if 'originl' not in self.styles:
-            self.styles['original'] = Style('original')
+        self._styles = None
+        self.styles = styles
         self.images = images or OrderedDict()
 
     def __repr__(self):
         return 'Collection:\nstyles: %r\nimages: %r' % \
             (self.styles, self.images)
+
+    def set_styles(self, styles):
+        """Set the styles images in this collection should be available in."""
+
+        self._styles = dict([(s.name, s) for s in styles])
+        if 'originl' not in self._styles:
+            self._styles['original'] = Style('original')
+
+    def get_styles(self):
+        """Get the styles images in this collection should be available in."""
+
+        return self._styles
+    styles = property(get_styles, set_styles)
 
     def get_url(self, style_name, blob_key):
         """Get the serving URL for the given blob_key in the named style."""
