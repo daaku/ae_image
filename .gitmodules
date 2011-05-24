@@ -22,3 +22,6 @@
 [submodule "subs/werkzeug-debugger-appengine"]
 	path = subs/werkzeug-debugger-appengine
 	url = https://github.com/nshah/werkzeug-debugger-appengine
+[submodule "subs/blinker"]
+	path = subs/blinker
+	url = https://github.com/clones/python-blinker

@@ -1,7 +1,9 @@
 #!/bin/sh
 
 BASE_DIR=$(cd `dirname $0` && pwd)
-export PYTHONPATH=$PYTHONPATH:$BASE_DIR/app/lib
+DEV_APPSERVER=$(which dev_appserver.py)
+APPENGINE_BASE=$(cd `dirname $DEV_APPSERVER` && pwd)
+export PYTHONPATH=$PYTHONPATH:$BASE_DIR/app/lib:$BASE_DIR/app:$APPENGINE_BASE:$APPENGINE_BASE/lib/yaml/lib:$APPENGINE_BASE/lib/simplejson
 
 run_server() {
   dev_appserver.py --address=0.0.0.0 --port=7654 app
@@ -14,18 +16,20 @@ run_test() {
 run_lint() {
   pep8 \
     ae_image \
-    app/index.py \
+    app/ae_image_app \
+    app/app.py \
     app/tests/*.py
 
   pylint --rcfile=.pylintrc \
     ae_image \
-    app/index.py \
+    app/ae_image_app \
+    app/app.py \
     app/tests/*.py
 }
 
 run_cover() {
   PORT=42000
-  coverage run --source=ae_image `which dev_appserver.py` --port=$PORT app \
+  coverage run --source=ae_image,ae_image_app `which dev_appserver.py` --port=$PORT app \
     &> /dev/null &
   PID=$!
   while ! nc -vz 127.0.0.1 $PORT &> /dev/null; do sleep 0.2; done

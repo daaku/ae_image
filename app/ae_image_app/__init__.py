@@ -4,16 +4,12 @@ Example application for ae_image.
 
 """
 
-import sys
-import os
-sys.path[1:1] = [os.path.abspath(os.path.dirname(__file__) + '/lib')]
-
 from ae_image.flask_utils import append_from_request
 from flask import Flask, render_template, request, url_for, redirect
 from google.appengine.ext import db, blobstore
 from werkzeug.urls import url_decode
-from wsgiref.handlers import CGIHandler
 import ae_image
+import os
 
 app = Flask(__name__)
 
@@ -36,6 +32,7 @@ class MethodRewriteMiddleware(object):
                 method = method.encode('ascii', 'replace')
                 environ['REQUEST_METHOD'] = method
         return self.app(environ, start_response)
+app.wsgi_app = MethodRewriteMiddleware(app.wsgi_app)
 
 
 class NamedCollections(db.Model):
@@ -90,12 +87,3 @@ def remove_image(name, key):
     collection.images.remove(key)
     collection.save()
     return redirect(url_for('home'))
-
-
-if __name__ == '__main__':
-    if os.environ.get('SERVER_SOFTWARE', '').startswith('Dev'):
-        import werkzeug_debugger_appengine
-        app.debug = True
-        app = werkzeug_debugger_appengine.get_debugged_app(app)
-    app = MethodRewriteMiddleware(app)
-    CGIHandler().run(app)

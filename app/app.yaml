@@ -9,4 +9,4 @@ handlers:
   script: gaeunit.py
 
 - url: /.*
-  script: index.py
+  script: app.py

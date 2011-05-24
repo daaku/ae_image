@@ -5,16 +5,16 @@ Helpers for unit tests for ae_image.
 """
 
 from __future__ import with_statement
-from flask import Flask
 from flaskext.testing import TestCase
 from google.appengine.api import files
+import ae_image_app
 
 
 class BaseTestCase(TestCase):
     """Base TestCase for ae_image tests."""
 
     def create_app(self):
-        app = Flask(__name__)
+        app = ae_image_app.app
         app.config['TESTING'] = True
         return app
 
