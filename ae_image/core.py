@@ -156,8 +156,8 @@ class Image(object):
             url = self.blobs[style].serving_url
             if style.size:
                 url += '=s%d' % style.size
-            if style.crop:
-                url += '-c'
+                if style.crop:
+                    url += '-c'
             return url
         except KeyError, _ex:
             raise UrlNotFound(self.blob_key, style.name)
