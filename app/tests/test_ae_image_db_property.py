@@ -7,8 +7,7 @@ Unit tests for ae_image.db_property.
 
 from ae_image_test import BaseTestCase
 from google.appengine.ext import blobstore, db
-import ae_image.db_property
-import ae_image.core
+import ae_image
 
 
 class TestAlbum(db.Model):
@@ -70,7 +69,7 @@ class CollectionPropertyTestCase(BaseTestCase):
         album = TestAlbumAlt(key_name=album_key)
         album.save()
 
-        class TestAlbumAlt(db.Model):
+        class TestAlbumAlt(db.Model):  # pylint: disable=E0102
             images = ae_image.Property([
                 ae_image.Style('thumb', size=50, quality=75),
                 ae_image.Style('medium', size=300, quality=85)])
